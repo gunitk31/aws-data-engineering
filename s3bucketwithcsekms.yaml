@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  S3CSEKMSKey:
+    Type: 'AWS::KMS::Key'
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      KeyUsage: ENCRYPT_DECRYPT
+      Origin: AWS_KMS
+      KeySpec: SYMMETRIC_DEFAULT
+      MultiRegion: false
+      BypassPolicyLockoutSafetyCheck: false
+      RotationPeriodInDays: 90
+
+  CFS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: cf-s3-bucket-ap-south-1-795524854110
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref S3CSEKMSKey
+      VersioningConfiguration:
+        Status: Enabled
