@@ -16,5 +16,5 @@ Resources:
         - Name: "v1"
           Description: "Version 1"
           Info:
-            LoadTemplateFromURL: "s3://cf-templates-795524854110-ap-south-1/s3kms.yaml"
+            LoadTemplateFromURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/s3kms.yaml"
           Type: "CLOUD_FORMATION_TEMPLATE"
