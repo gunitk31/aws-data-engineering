@@ -1,5 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
+Parameters:
+  NationS3BucketName:
+    Type: String
+    Description: "Name of the S3 bucket"
+
 Resources:
   svcGlueCrawlerRole:
     Type: 'AWS::IAM::Role'
@@ -27,8 +32,8 @@ Resources:
                   - 's3:PutObject'
                   - 's3:ListBucket'
                 Resource: 
-                  - !Sub 'arn:${AWS::Partition}:s3:::${!ImportValue NationS3BucketName}'
-                  - !Sub 'arn:${AWS::Partition}:s3:::${!ImportValue NationS3BucketName}/*'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${NationS3BucketName}'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${NationS3BucketName}/*'
 
   NationGlueDatabase:
     Type: 'AWS::Glue::Database'
@@ -44,8 +49,5 @@ Resources:
       DatabaseName: !Ref NationGlueDatabase
       Targets:
         S3Targets:
-          - Path: !Join 
-            - ''
-            - - 's3://'
-              - !ImportValue NationS3BucketName
+          - Path: !Sub 's3://${NationS3BucketName}'
 
