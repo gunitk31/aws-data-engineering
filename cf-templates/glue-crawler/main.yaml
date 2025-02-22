@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: "Master stack that ensures correct order of S3 and EC2"
 
 Parameters:
-  BucketName:
+  ParamCrawlerS3BucketName:
     Type: String
     Description: 'Name of the S3 Bucket'
     AllowedPattern: '^[a-z0-9-]{5,40}$'
@@ -15,7 +15,7 @@ Resources:
     Properties:
       TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/s3kms.yaml"
       Parameters:
-        BucketName: !Ref BucketName  # Pass BucketName parameter to the nested stack
+        BucketName: !Ref ParamCrawlerS3BucketName  # Pass BucketName parameter to the nested stack
 
   GlueCrawlerStack:
     Type: AWS::CloudFormation::Stack
@@ -24,4 +24,4 @@ Resources:
     Properties:
       TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/gluecrawler.yaml"
       Parameters:
-        NationS3BucketName: !GetAtt S3BucketStack.Outputs.NationS3BucketName  
+        CrawlerS3BucketName: !GetAtt S3BucketStack.Outputs.CrawlerS3BucketName  

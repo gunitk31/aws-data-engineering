@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Parameters:
-  NationS3BucketName:
+  CrawlerS3BucketName:
     Type: String
     Description: "Name of the S3 bucket"
 
@@ -33,22 +33,22 @@ Resources:
                   - 's3:ListBucket'
                   - 'kms:Decrypt'
                 Resource: 
-                  - !Sub 'arn:${AWS::Partition}:s3:::${NationS3BucketName}'
-                  - !Sub 'arn:${AWS::Partition}:s3:::${NationS3BucketName}/*'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${CrawlerS3BucketName}'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${CrawlerS3BucketName}/*'
 
-  NationGlueDatabase:
+  CrawlerGlueDatabase:
     Type: 'AWS::Glue::Database'
     Properties:
       CatalogId: !Ref AWS::AccountId
       DatabaseInput:
         Name: 'crawlerdb'
 
-  NationCrawler:
+  CrawlerCrawler:
     Type: 'AWS::Glue::Crawler'
     Properties:
       Role: !GetAtt svcGlueCrawlerRole.Arn
-      DatabaseName: !Ref NationGlueDatabase     
+      DatabaseName: !Ref CrawlerGlueDatabase     
       Targets:
         S3Targets:
-          - Path: !Sub 's3://${NationS3BucketName}'
+          - Path: !Sub 's3://${CrawlerS3BucketName}'
 

@@ -8,7 +8,7 @@ Parameters:
 
 Resources:
 
-  NationS3KMSKey:
+  CrawlerS3KMSKey:
     Type: 'AWS::KMS::Key'
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete 
@@ -20,7 +20,7 @@ Resources:
       BypassPolicyLockoutSafetyCheck: false
       RotationPeriodInDays: 90
 
-  NationS3Bucket:
+  CrawlerS3Bucket:
     Type: 'AWS::S3::Bucket'
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
@@ -30,13 +30,13 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !Ref NationS3KMSKey
+              KMSMasterKeyID: !Ref CrawlerS3KMSKey
       VersioningConfiguration:
         Status: Enabled
 
 Outputs:
-  NationS3BucketName:
-    Description: 'Name of the Nation S3 Bucket'
-    Value: !Ref NationS3Bucket
+  CrawlerS3BucketName:
+    Description: 'Name of the Crawler S3 Bucket'
+    Value: !Ref CrawlerS3Bucket
     Export:
-      Name: NationS3BucketName
+      Name: CrawlerS3BucketName
