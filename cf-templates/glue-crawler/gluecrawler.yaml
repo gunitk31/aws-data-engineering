@@ -44,11 +44,12 @@ Resources:
     Properties:
       CatalogId: !Ref AWS::AccountId
       DatabaseInput:
-        Name: 'crawlerdb'
+        Name: 'datastore_db'
 
-  CrawlerCrawler:
+  Crawler:
     Type: 'AWS::Glue::Crawler'
     Properties:
+      Name: 'DatastoreCrawler'
       Role: !GetAtt svcGlueCrawlerRole.Arn
       DatabaseName: !Ref CrawlerGlueDatabase     
       Targets:
