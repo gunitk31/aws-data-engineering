@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "AWS Service Catalog Product for S3 Bucket with KMS Encryption"
+
+Resources:
+  S3KMSSCProduct:
+    Type: "AWS::ServiceCatalog::CloudFormationProduct"
+    Properties:
+      Name: "S3 Bucket with KMS Encryption"
+      Owner: "Admin Team"
+      Description: "Creates an S3 bucket with KMS encryption."
+      Distributor: "Gunit"
+      SupportDescription: "Contact gunit.k31@gmail.com for assistance"
+      SupportEmail: "gunit.k31@gmail.com"
+      SupportUrl: "https://support.example.com"
+      ProvisioningArtifactParameters:
+        - Name: "v1"
+          Description: "Version 1"
+          Info:
+            LoadTemplateFromURL: "https://github.com/gunitk31/aws-data-engineering/blob/main/s3kms.yaml"
+          Type: "CLOUD_FORMATION_TEMPLATE"

@@ -1,0 +1,31 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write  # Required for OIDC
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::795524854110:role/GitHubActionsRole
+          role-session-name: GitHubActions
+          aws-region: ap_south_1
+
+      - name: Verify AWS Identity
+        run: aws sts get-caller-identity
+
+      - name: Upload to S3
+        run: aws s3 cp cf-templates/s3kms.yaml s3://cf-templates-795524854110-ap-south-1/
