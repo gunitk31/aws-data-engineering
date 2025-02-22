@@ -24,4 +24,4 @@ Resources:
     Properties:
       TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/gluecrawler.yaml"
       Parameters:
-        NationS3BucketName: !ImportValue NationS3BucketName
+        NationS3BucketName: !GetAtt S3BucketStack.Outputs.NationS3BucketName  
