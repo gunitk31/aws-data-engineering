@@ -40,4 +40,3 @@ Outputs:
     Value: !Ref NationS3Bucket
     Export:
       Name: NationS3BucketName
-
