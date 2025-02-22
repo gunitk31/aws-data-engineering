@@ -21,24 +21,6 @@ Resources:
       BypassPolicyLockoutSafetyCheck: false
       RotationPeriodInDays: 90
 
-  CrawlerS3Bucket:
-    Type: 'AWS::S3::Bucket'
-    DeletionPolicy: Delete
-    UpdateReplacePolicy: Delete
-    Properties:
-      BucketName: !Sub '${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}'
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !Ref CrawlerS3KMSKey
-      VersioningConfiguration:
-        Status: Enabled
-      NotificationConfiguration:
-           QueueConfigurations:
-                - Event: 's3:ObjectCreated:*'
-                  Queue: !GetAtt [CrawlerS3BucketEventQueue, Arn]
-
   CrawlerS3BucketEventQueue:
     Type: 'AWS::SQS::Queue'
     DeletionPolicy: Delete
@@ -63,6 +45,26 @@ Resources:
             Condition:
               ArnLike:
                 aws:SourceArn: !GetAtt CrawlerS3Bucket.Arn
+
+  CrawlerS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      BucketName: !Sub '${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref CrawlerS3KMSKey
+      VersioningConfiguration:
+        Status: Enabled
+      NotificationConfiguration:
+           QueueConfigurations:
+                - Event: 's3:ObjectCreated:*'
+                  Queue: !GetAtt [CrawlerS3BucketEventQueue, Arn]
+    DependsOn: 
+      - CrawlerS3QueuePolicy  # Ensure S3 gets permission before setting notifications
 
 Outputs:
 
