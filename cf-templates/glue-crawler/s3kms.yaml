@@ -92,3 +92,9 @@ Outputs:
     Value: !Ref CrawlerS3BucketEventQueue
     Export:
       Name: CrawlerS3BucketEventQueue
+
+  CrawlerS3BucketEventQueueArn:
+    Description: 'Event Queue for the Crawler S3 Bucket'
+    Value: !GetAtt CrawlerS3BucketEventQueue.Arn
+    Export:
+      Name: CrawlerS3BucketEventQueueArn
