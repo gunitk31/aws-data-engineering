@@ -42,6 +42,6 @@ Outputs:
       Name: CrawlerS3BucketName
   CrawlerS3KMSKey:
     Description: 'KMS Key for the Crawler S3 Bucket'
-    Value: !Ref CrawlerS3KMSKey
+    Value: !GetAtt CrawlerS3KMSKey.Arn
     Export:
       Name: CrawlerS3KMSKey
