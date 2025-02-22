@@ -46,9 +46,7 @@ Resources:
     Type: 'AWS::Glue::Crawler'
     Properties:
       Role: !GetAtt svcGlueCrawlerRole.Arn
-      DatabaseName: !Ref NationGlueDatabase
-      RecrawlPolicy:
-        RecrawlBehavior: 'CRAWL_EVENT_MODE'      
+      DatabaseName: !Ref NationGlueDatabase     
       Targets:
         S3Targets:
           - Path: !Sub 's3://${NationS3BucketName}'
