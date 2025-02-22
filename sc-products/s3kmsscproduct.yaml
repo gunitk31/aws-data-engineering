@@ -16,5 +16,5 @@ Resources:
         - Name: "v1"
           Description: "Version 1"
           Info:
-            LoadTemplateFromURL: "https://github.com/gunitk31/aws-data-engineering/blob/main/s3kms.yaml"
+            LoadTemplateFromURL: "s3://cf-templates-795524854110-ap-south-1/s3kms.yaml"
           Type: "CLOUD_FORMATION_TEMPLATE"
