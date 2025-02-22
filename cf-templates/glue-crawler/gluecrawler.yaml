@@ -31,6 +31,7 @@ Resources:
                   - 's3:GetObject'
                   - 's3:PutObject'
                   - 's3:ListBucket'
+                  - 'kms:Decrypt'
                 Resource: 
                   - !Sub 'arn:${AWS::Partition}:s3:::${NationS3BucketName}'
                   - !Sub 'arn:${AWS::Partition}:s3:::${NationS3BucketName}/*'
