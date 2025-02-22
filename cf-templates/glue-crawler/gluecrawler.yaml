@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  svcGlueCrawlerRole:
+    Type: 'AWS::IAM::Role'
+    Properties: 
+      RoleName: 'svc-GlueCrawlerRole'
+      AssumeRolePolicyDocument: 
+        Version: '2012-10-17'
+        Statement: 
+          - Effect: 'Allow'
+            Principal: 
+              Service: 
+                - 'glue.amazonaws.com'
+            Action: 
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+      Policies:
+        - PolicyName: 'GlueCrawlerPolicy'
+          PolicyDocument: 
+            Version: '2012-10-17'
+            Statement: 
+              - Effect: 'Allow'
+                Action: 
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                  - 's3:ListBucket'
+                Resource: 
+                  - !Sub 'arn:${AWS::Partition}:s3:::${!ImportValue NationS3BucketName}'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${!ImportValue NationS3BucketName}/*'
+
+  NationGlueDatabase:
+    Type: 'AWS::Glue::Database'
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: 'nationdb'
+
+  NationCrawler:
+    Type: 'AWS::Glue::Crawler'
+    Properties:
+      Role: !GetAtt svcGlueCrawlerRole.Arn
+      DatabaseName: !Ref NationGlueDatabase
+      Targets:
+        S3Targets:
+          - Path: !Join 
+            - ''
+            - - 's3://'
+              - !ImportValue NationS3BucketName
+

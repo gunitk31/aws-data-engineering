@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  BucketName:
+    Type: String
+    Description: 'Name of the S3 Bucket'
+    AllowedPattern: '^[a-z0-9-]{5,40}$'
+
+Resources:
+
+  NationS3KMSKey:
+    Type: 'AWS::KMS::Key'
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete 
+    Properties:
+      KeyUsage: ENCRYPT_DECRYPT
+      Origin: AWS_KMS
+      KeySpec: SYMMETRIC_DEFAULT
+      MultiRegion: false
+      BypassPolicyLockoutSafetyCheck: false
+      RotationPeriodInDays: 90
+
+  NationS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      BucketName: !Sub '${BucketName}-${AWS::Region}-${AWS::AccountId}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref NationS3KMSKey
+      VersioningConfiguration:
+        Status: Enabled
+
+Outputs:
+  NationS3BucketName:
+    Description: 'Name of the Nation S3 Bucket'
+    Value: !Ref NationS3Bucket
+    Export:
+      Name: NationS3BucketName
+

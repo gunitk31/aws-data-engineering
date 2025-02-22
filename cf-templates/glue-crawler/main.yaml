@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Master stack that ensures correct order of S3 and EC2"
+
+Resources:
+  S3BucketStack:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/s3kms.yaml"
+
+  GlueCrawlerStack:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/gluecrawler.yaml"
+      Parameters:
+        BucketName: !GetAtt S3BucketStack.Outputs.BucketName
