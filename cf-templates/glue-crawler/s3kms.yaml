@@ -87,6 +87,12 @@ Outputs:
     Export:
       Name: CrawlerS3KMSKey
 
+  CrawlerS3KMSKeyArn:
+    Description: 'KMS Key for the Crawler S3 Bucket'
+    Value: !GetAtt CrawlerS3KMSKey.Arn
+    Export:
+      Name: CrawlerS3KMSKeyArn
+
   CrawlerS3BucketEventQueue:
     Description: 'Event Queue for the Crawler S3 Bucket'
     Value: !Ref CrawlerS3BucketEventQueue
@@ -98,3 +104,9 @@ Outputs:
     Value: !GetAtt CrawlerS3BucketEventQueue.Arn
     Export:
       Name: CrawlerS3BucketEventQueueArn
+
+  CrawlerS3BucketEventQueueName:
+    Description: 'Event Queue for the Crawler S3 Bucket'
+    Value: !GetAtt CrawlerS3BucketEventQueue.Name
+    Export:
+      Name: CrawlerS3BucketEventQueueName
