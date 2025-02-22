@@ -40,13 +40,15 @@ Resources:
     Properties:
       CatalogId: !Ref AWS::AccountId
       DatabaseInput:
-        Name: 'nationdb'
+        Name: 'crawlerdb'
 
   NationCrawler:
     Type: 'AWS::Glue::Crawler'
     Properties:
       Role: !GetAtt svcGlueCrawlerRole.Arn
       DatabaseName: !Ref NationGlueDatabase
+      RecrawlPolicy:
+        RecrawlBehavior: 'CRAWL_EVENT_MODE'      
       Targets:
         S3Targets:
           - Path: !Sub 's3://${NationS3BucketName}'
