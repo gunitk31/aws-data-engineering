@@ -60,9 +60,10 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       NotificationConfiguration:
-           QueueConfigurations:
-                - Event: 's3:ObjectCreated:*'
-                  Queue: !GetAtt [CrawlerS3BucketEventQueue, Arn]
+        QueueConfigurations:
+          - Event: 's3:ObjectCreated:*'
+            Queue: !GetAtt CrawlerS3BucketEventQueue.Arn
+
     DependsOn: 
       - CrawlerS3QueuePolicy  # Ensure S3 gets permission before setting notifications
 
@@ -74,9 +75,15 @@ Outputs:
     Export:
       Name: CrawlerS3BucketName
 
+  CrawlerS3BucketArn:
+    Description: 'ARN of the Crawler S3 Bucket'
+    Value: !GetAtt CrawlerS3Bucket.Arn
+    Export:
+      Name: CrawlerS3BucketArn
+
   CrawlerS3KMSKey:
     Description: 'KMS Key for the Crawler S3 Bucket'
-    Value: !GetAtt CrawlerS3KMSKey.Arn
+    Value: !Ref CrawlerS3KMSKey
     Export:
       Name: CrawlerS3KMSKey
 
