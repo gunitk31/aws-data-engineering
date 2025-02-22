@@ -107,6 +107,6 @@ Outputs:
 
   CrawlerS3BucketEventQueueName:
     Description: 'Event Queue for the Crawler S3 Bucket'
-    Value: !GetAtt CrawlerS3BucketEventQueue.Name
+    Value: !GetAtt CrawlerS3BucketEventQueue.QueueName
     Export:
       Name: CrawlerS3BucketEventQueueName
