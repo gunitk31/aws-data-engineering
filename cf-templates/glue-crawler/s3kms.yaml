@@ -44,7 +44,7 @@ Resources:
             Resource: !GetAtt CrawlerS3BucketEventQueue.Arn
             Condition:
               ArnLike:
-                aws:SourceArn: !GetAtt CrawlerS3Bucket.Arn
+                aws:SourceArn: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}"
 
   CrawlerS3Bucket:
     Type: 'AWS::S3::Bucket'
