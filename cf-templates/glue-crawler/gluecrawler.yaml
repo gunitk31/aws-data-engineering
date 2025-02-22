@@ -31,11 +31,14 @@ Resources:
                   - 's3:GetObject'
                   - 's3:PutObject'
                   - 's3:ListBucket'
-                  - 'kms:Decrypt'
                 Resource: 
                   - !Sub 'arn:${AWS::Partition}:s3:::${CrawlerS3BucketName}'
                   - !Sub 'arn:${AWS::Partition}:s3:::${CrawlerS3BucketName}/*'
-
+              - Effect: 'Allow'
+                Action: 
+                  - 'kms:Decrypt'
+                Resource: !ImportValue CrawlerS3KMSKey
+              
   CrawlerGlueDatabase:
     Type: 'AWS::Glue::Database'
     Properties:
