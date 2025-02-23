@@ -63,4 +63,4 @@ Resources:
         UpdateBehavior: "UPDATE_IN_DATABASE"
         DeleteBehavior: "DEPRECATE_IN_DATABASE"
       RecrawlPolicy:
-        RecrawlBehavior: "CRAWL_EVENT_MODE" # Recrawls only changed objects
+        RecrawlBehavior: "CRAWL_EVERYTHING" # Recrawls only changed objects
