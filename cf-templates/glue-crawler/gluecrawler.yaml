@@ -13,7 +13,7 @@ Resources:
   svcGlueCrawlerRole:
     Type: 'AWS::IAM::Role'
     Properties: 
-      RoleName: !Sub 'svc-GlueCrawlerRole-${AWS::StackName}-${AWS::Region}'
+      RoleName: !Sub 'svc-Crawler-${AWS::Region}'
       AssumeRolePolicyDocument: 
         Version: '2012-10-17'
         Statement: 
