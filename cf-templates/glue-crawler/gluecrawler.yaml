@@ -54,7 +54,7 @@ Resources:
     Type: 'AWS::Glue::Crawler'
     Properties:
       Name: !Sub '${ParamCrawlerS3BucketName}-crawler' 
-      Role: !GetAtt svcGlueCrawlerRole.Arn
+      Role: !Ref svcGlueCrawlerRole
       DatabaseName: !Ref CrawlerGlueDatabase     
       Targets:
         S3Targets:
