@@ -22,14 +22,14 @@ Resources:
               Service: "events.amazonaws.com"
             Action: "sts:AssumeRole"
       Policies:
-        - PolicyName: "StartGlueCrawlerPolicy"
+        - PolicyName: "InvokeLambdaFromEventBridge"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action:
                   - "lambda:InvokeFunction"
-                Resource: !Sub "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:crawler/${ParamCrawlerS3BucketName}-crawler"
+                Resource: !Ref ParamCrawlerTriggerLambdaArn
 
   CrawlerEventRule:
     Type: "AWS::Events::Rule"
@@ -39,14 +39,30 @@ Resources:
         source:
           - "aws.s3"
         detail-type:
-          - "Object Created"
+          - "AWS API Call via CloudTrail"
         detail:
-          bucket:
-            name:
+          eventSource:
+            - "s3.amazonaws.com"
+          eventName:
+            - "PutObject"
+            - "PostObject"
+            - "CopyObject"
+          requestParameters:
+            bucketName:
               - !Ref ParamCrawlerS3BucketName
       Targets:
         - Arn: !Ref ParamCrawlerTriggerLambdaArn
           Id: "LambdaCrawlerTarget"
+          RoleArn: !GetAtt svcCrawlerEventBridgeRole.Arn
+          InputTransformer:
+            InputPathsMap:
+              "bucketName": "$.detail.requestParameters.bucketName"
+              "objectKey": "$.detail.requestParameters.key"
+            InputTemplate: |
+              {
+                "bucket": "<bucketName>",
+                "object": "<objectKey>"
+              }
 
   LambdaInvokePermission:
     Type: "AWS::Lambda::Permission"
@@ -54,3 +70,4 @@ Resources:
       Action: "lambda:InvokeFunction"
       FunctionName: !Ref ParamCrawlerTriggerLambdaArn
       Principal: "events.amazonaws.com"
+      SourceArn: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:rule/${ParamCrawlerS3BucketName}-s3-event-rule"
