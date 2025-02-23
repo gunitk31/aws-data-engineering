@@ -28,7 +28,7 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - "glue:StartCrawler"
+                  - "lambda:InvokeFunction"
                 Resource: !Sub "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:crawler/${ParamCrawlerS3BucketName}-crawler"
 
   CrawlerEventRule:
