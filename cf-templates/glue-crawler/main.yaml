@@ -25,7 +25,7 @@ Resources:
       TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/gluecrawler.yaml"
       Parameters:
         ParamCrawlerS3BucketName: !GetAtt S3BucketStack.Outputs.CrawlerS3BucketName
-        ParamCrawlerS3KMSKey: !GetAtt S3BucketStack.Outputs.CrawlerS3KMSKey
+        ParamCrawlerS3KMSKeyArn: !GetAtt S3BucketStack.Outputs.CrawlerS3KMSKeyArn
 
   EventBridgeStack:
     Type: AWS::CloudFormation::Stack

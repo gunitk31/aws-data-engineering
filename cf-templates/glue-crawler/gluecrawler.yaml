@@ -5,7 +5,7 @@ Parameters:
     Type: String
     Description: "Name of the S3 bucket"
 
-  ParamCrawlerS3KMSKey:
+  ParamCrawlerS3KMSKeyArn:
     Type: String
     Description: "KMS Key used to encrypt the S3 bucket"
 
@@ -40,7 +40,7 @@ Resources:
                 Action: 
                   - 'kms:Decrypt'
                   - 'kms:DescribeKey'
-                Resource: !Ref ParamCrawlerS3KMSKey
+                Resource: !Ref ParamCrawlerS3KMSKeyArn
               
   CrawlerGlueDatabase:
     Type: 'AWS::Glue::Database'
