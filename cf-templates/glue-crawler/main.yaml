@@ -27,6 +27,16 @@ Resources:
         ParamCrawlerS3BucketName: !GetAtt S3BucketStack.Outputs.CrawlerS3BucketName
         ParamCrawlerS3KMSKeyArn: !GetAtt S3BucketStack.Outputs.CrawlerS3KMSKeyArn
 
+  LambdaStack:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/lambda.yaml"
+      Parameters:
+        ParamCrawlerS3BucketName: !GetAtt S3BucketStack.Outputs.CrawlerS3BucketName
+    DependsOn: GlueCrawlerStack  # Ensure that the Glue Crawler stack is created before the Lambda stack
+
   EventBridgeStack:
     Type: AWS::CloudFormation::Stack
     DeletionPolicy: Delete
@@ -35,3 +45,4 @@ Resources:
       TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/eventbridge.yaml"
       Parameters:
         ParamCrawlerS3BucketName: !GetAtt S3BucketStack.Outputs.CrawlerS3BucketName 
+        ParamCrawlerTriggerLambdaArn: !GetAtt LambdaStack.Outputs.CrawlerTriggerLambdaArn 

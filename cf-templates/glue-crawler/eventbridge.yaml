@@ -5,6 +5,10 @@ Parameters:
     Type: String
     Description: "Name of the S3 bucket"
 
+  ParamCrawlerTriggerLambdaArn:
+    Type: String
+    Description: "ARN of the Lambda function that triggers the Glue Crawler"
+
 Resources:
 
   svcCrawlerEventBridgeRole:
@@ -41,6 +45,12 @@ Resources:
             name:
               - !Ref ParamCrawlerS3BucketName
       Targets:
-        - Arn: !Sub "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:crawler/${ParamCrawlerS3BucketName}-crawler"
-          Id: "GlueCrawlerTarget"
-          RoleArn: !GetAtt svcCrawlerEventBridgeRole.Arn
+        - Arn: !Ref ParamCrawlerTriggerLambdaArn
+          Id: "LambdaCrawlerTarget"
+
+  LambdaInvokePermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !Ref ParamCrawlerTriggerLambdaArn
+      Principal: "events.amazonaws.com"
