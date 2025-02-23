@@ -7,10 +7,9 @@ Parameters:
 
 Resources:
 
-  CrawlerEventBridgeRole:
+  svcCrawlerEventBridgeRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: !Sub "svc-EventBridgeCrawler-${AWS::Region}"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -44,4 +43,4 @@ Resources:
       Targets:
         - Arn: !Sub "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:crawler/${ParamCrawlerS3BucketName}-crawler"
           Id: "GlueCrawlerTarget"
-          RoleArn: !GetAtt CrawlerEventBridgeRole.Arn
+          RoleArn: !GetAtt svcCrawlerEventBridgeRole.Arn
