@@ -1,15 +1,19 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Parameters:
-  CrawlerS3BucketName:
+  ParamCrawlerS3BucketName:
     Type: String
     Description: "Name of the S3 bucket"
+
+  ParamCrawlerS3KMSKey:
+    Type: String
+    Description: "KMS Key used to encrypt the S3 bucket"
 
 Resources:
   svcGlueCrawlerRole:
     Type: 'AWS::IAM::Role'
     Properties: 
-      RoleName: 'svc-GlueCrawlerRole'
+      RoleName: !Sub 'svc-GlueCrawlerRole-${AWS::StackName}-${AWS::Region}'
       AssumeRolePolicyDocument: 
         Version: '2012-10-17'
         Statement: 
@@ -29,30 +33,35 @@ Resources:
               - Effect: 'Allow'
                 Action: 
                   - 's3:GetObject'
-                  - 's3:PutObject'
                   - 's3:ListBucket'
                 Resource: 
-                  - !Sub 'arn:${AWS::Partition}:s3:::${CrawlerS3BucketName}'
-                  - !Sub 'arn:${AWS::Partition}:s3:::${CrawlerS3BucketName}/*'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}/*'
               - Effect: 'Allow'
                 Action: 
                   - 'kms:Decrypt'
-                Resource: !ImportValue CrawlerS3KMSKey
+                  - 'kms:DescribeKey'
+                Resource: !Ref ParamCrawlerS3KMSKey
               
   CrawlerGlueDatabase:
     Type: 'AWS::Glue::Database'
     Properties:
       CatalogId: !Ref AWS::AccountId
       DatabaseInput:
-        Name: 'datastore_db'
+        Name: !Sub '${ParamCrawlerS3BucketName}_db'
 
   Crawler:
     Type: 'AWS::Glue::Crawler'
     Properties:
-      Name: 'DatastoreCrawler'
+      Name: !Sub '${ParamCrawlerS3BucketName}-crawler' 
       Role: !GetAtt svcGlueCrawlerRole.Arn
       DatabaseName: !Ref CrawlerGlueDatabase     
       Targets:
         S3Targets:
-          - Path: !Sub 's3://${CrawlerS3BucketName}'
-
+          - Path: !Sub 's3://${ParamCrawlerS3BucketName}/'
+      TablePrefix: ""
+      SchemaChangePolicy:
+        UpdateBehavior: "UPDATE_IN_DATABASE"
+        DeleteBehavior: "DEPRECATE_IN_DATABASE"
+      RecrawlPolicy:
+        RecrawlBehavior: "CRAWL_EVENT_MODE" # Recrawls only changed objects

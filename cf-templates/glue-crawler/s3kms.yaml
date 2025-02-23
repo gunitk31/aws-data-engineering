@@ -21,31 +21,6 @@ Resources:
       BypassPolicyLockoutSafetyCheck: false
       RotationPeriodInDays: 90
 
-  CrawlerS3BucketEventQueue:
-    Type: 'AWS::SQS::Queue'
-    DeletionPolicy: Delete
-    UpdateReplacePolicy: Delete
-    Properties:
-      MessageRetentionPeriod: 86400
-      QueueName: !Sub 's3-event-queue-${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}'
-
-  CrawlerS3QueuePolicy:
-    Type: 'AWS::SQS::QueuePolicy'
-    Properties:
-      Queues:
-        - !Ref CrawlerS3BucketEventQueue
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Principal:
-              Service: "s3.amazonaws.com"
-            Action: "sqs:SendMessage"
-            Resource: !GetAtt CrawlerS3BucketEventQueue.Arn
-            Condition:
-              ArnLike:
-                aws:SourceArn: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}"
-
   CrawlerS3Bucket:
     Type: 'AWS::S3::Bucket'
     DeletionPolicy: Delete
@@ -60,53 +35,19 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       NotificationConfiguration:
-        QueueConfigurations:
-          - Event: 's3:ObjectCreated:*'
-            Queue: !GetAtt CrawlerS3BucketEventQueue.Arn
-
-    DependsOn: 
-      - CrawlerS3QueuePolicy  # Ensure S3 gets permission before setting notifications
+        EventBridgeConfiguration:  # <-- Enables EventBridge notifications
+          EventBridgeEnabled: true
 
 Outputs:
 
   CrawlerS3BucketName:
-    Description: 'Name of the Crawler S3 Bucket'
+    Description: 'Name of the S3 Bucket'
     Value: !Ref CrawlerS3Bucket
     Export:
       Name: CrawlerS3BucketName
-
-  CrawlerS3BucketArn:
-    Description: 'ARN of the Crawler S3 Bucket'
-    Value: !GetAtt CrawlerS3Bucket.Arn
-    Export:
-      Name: CrawlerS3BucketArn
-
+      
   CrawlerS3KMSKey:
     Description: 'KMS Key for the Crawler S3 Bucket'
     Value: !Ref CrawlerS3KMSKey
     Export:
       Name: CrawlerS3KMSKey
-
-  CrawlerS3KMSKeyArn:
-    Description: 'KMS Key for the Crawler S3 Bucket'
-    Value: !GetAtt CrawlerS3KMSKey.Arn
-    Export:
-      Name: CrawlerS3KMSKeyArn
-
-  CrawlerS3BucketEventQueue:
-    Description: 'Event Queue for the Crawler S3 Bucket'
-    Value: !Ref CrawlerS3BucketEventQueue
-    Export:
-      Name: CrawlerS3BucketEventQueue
-
-  CrawlerS3BucketEventQueueArn:
-    Description: 'Event Queue for the Crawler S3 Bucket'
-    Value: !GetAtt CrawlerS3BucketEventQueue.Arn
-    Export:
-      Name: CrawlerS3BucketEventQueueArn
-
-  CrawlerS3BucketEventQueueName:
-    Description: 'Event Queue for the Crawler S3 Bucket'
-    Value: !GetAtt CrawlerS3BucketEventQueue.QueueName
-    Export:
-      Name: CrawlerS3BucketEventQueueName

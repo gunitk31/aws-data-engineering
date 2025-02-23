@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  ParamCrawlerS3BucketName:
+    Type: String
+    Description: "Name of the S3 bucket"
+
+Resources:
+
+  CrawlerEventBridgeRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub "svc-EventBridge-GlueCrawler-Role-${ParamCrawlerS3BucketName}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "events.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "StartGlueCrawlerPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "glue:StartCrawler"
+                Resource: !Sub "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:crawler/${ParamCrawlerS3BucketName}-crawler"
+
+  CrawlerEventRule:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Name: !Sub "${ParamCrawlerS3BucketName}-s3-event-rule"
+      EventPattern:
+        source:
+          - "aws.s3"
+        detail-type:
+          - "Object Created"
+        detail:
+          bucket:
+            name:
+              - !Ref ParamCrawlerS3BucketName
+      Targets:
+        - Arn: !Sub "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:crawler/${ParamCrawlerS3BucketName}-crawler"
+          Id: "GlueCrawlerTarget"
+          RoleArn: !GetAtt CrawlerEventBridgeRole.Arn

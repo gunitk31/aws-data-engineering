@@ -15,7 +15,7 @@ Resources:
     Properties:
       TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/s3kms.yaml"
       Parameters:
-        BucketName: !Ref ParamCrawlerS3BucketName  # Pass BucketName parameter to the nested stack
+        ParamCrawlerS3BucketName: !Ref ParamCrawlerS3BucketName  # Pass BucketName parameter to the nested stack
 
   GlueCrawlerStack:
     Type: AWS::CloudFormation::Stack
@@ -24,4 +24,14 @@ Resources:
     Properties:
       TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/gluecrawler.yaml"
       Parameters:
-        CrawlerS3BucketName: !GetAtt S3BucketStack.Outputs.CrawlerS3BucketName  
+        ParamCrawlerS3BucketName: !GetAtt S3BucketStack.Outputs.CrawlerS3BucketName
+        ParamCrawlerS3KMSKey: !GetAtt S3BucketStack.Outputs.CrawlerS3KMSKey
+
+  EventBridgeStack:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/eventbridge.yaml"
+      Parameters:
+        ParamCrawlerS3BucketName: !GetAtt S3BucketStack.Outputs.CrawlerS3BucketName 
