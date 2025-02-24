@@ -136,7 +136,7 @@ Resources:
         EventBridgeConfiguration:  # <-- Enables EventBridge notifications
           EventBridgeEnabled: true        
 
-    CrawlerTrailS3BucketPolicy:
+  CrawlerTrailS3BucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
     Properties:
       Bucket: !Ref CrawlerTrailS3Bucket
