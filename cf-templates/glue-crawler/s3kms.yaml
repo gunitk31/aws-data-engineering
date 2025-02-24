@@ -24,6 +24,12 @@ Resources:
         Version: "2012-10-17"
         Id: "CloudTrailS3KMSPolicy"
         Statement:
+          # Allow AWS Account Root User Full Control (Fixes Your Issue)
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
+            Action: "kms:*"
+            Resource: "*"
           # Allow CloudTrail to use the KMS key for encryption/decryption
           - Effect: Allow
             Principal:
@@ -35,7 +41,6 @@ Resources:
               - "kms:GenerateDataKey*"
               - "kms:DescribeKey"
             Resource: "*"
-
           # Allow S3 bucket to use the KMS key for encryption/decryption
           - Effect: Allow
             Principal:
