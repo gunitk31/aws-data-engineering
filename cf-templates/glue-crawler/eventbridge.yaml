@@ -54,15 +54,6 @@ Resources:
         - Arn: !Ref ParamCrawlerTriggerLambdaArn
           Id: "LambdaCrawlerTarget"
           RoleArn: !GetAtt svcCrawlerEventBridgeRole.Arn
-          InputTransformer:
-            InputPathsMap:
-              "bucketName": "$.detail.requestParameters.bucketName"
-              "objectKey": "$.detail.requestParameters.key"
-            InputTemplate: |
-              {
-                "bucket": "<bucketName>",
-                "object": "<objectKey>"
-              }
 
   LambdaInvokePermission:
     Type: "AWS::Lambda::Permission"
