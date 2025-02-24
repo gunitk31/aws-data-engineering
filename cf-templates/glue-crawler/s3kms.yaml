@@ -38,6 +38,35 @@ Resources:
         EventBridgeConfiguration:  # <-- Enables EventBridge notifications
           EventBridgeEnabled: true
 
+  CrawlerS3BucketTrail:
+    Type: AWS::CloudTrail::Trail
+    Properties:
+      S3BucketName: !Ref CrawlerS3Bucket
+      IsMultiRegionTrail: false
+      IsLogging: true
+      IncludeGlobalServiceEvents: true
+      EnableLogFileValidation: true
+      EventSelectors:
+        - ReadWriteType: WriteOnly
+          DataResources:
+               - Type: AWS::S3::Object
+                 Values:
+                   - !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}/"
+          AdvancedEventSelectors:          
+            - Name: "New Top-Level Folder Creation"
+              FieldSelectors:
+                - Field: "eventSource"
+                  Equals: "s3.amazonaws.com"
+                - Field: "eventName"
+                  Equals: ["PutObject", "CopyObject"]
+                - Field: "resource.ARN"
+                  StartsWith: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}/"
+                - Field: "requestParameters.key"
+                  NotEndsWith: "/"
+                - Field: "additionalEventData.x-amz-request-payer"
+                  Exists: false
+      KMSKeyId: !GetAtt CrawlerS3KMSKey.Arn  
+
 Outputs:
 
   CrawlerS3BucketName:
@@ -51,3 +80,9 @@ Outputs:
     Value: !GetAtt CrawlerS3KMSKey.Arn
     Export:
       Name: CrawlerS3KMSKeyArn
+
+  CrawlerS3BucketTrailArn:
+    Description: 'CloudTrail ARN for the Crawler S3 Bucket'
+    Value: !GetAtt CrawlerS3BucketTrail.Arn
+    Export:
+      Name: CrawlerS3BucketTrailArn
