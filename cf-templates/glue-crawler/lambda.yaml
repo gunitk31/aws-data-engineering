@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  ParamCrawlerS3BucketName:
+    Type: String
+    Description: "Name of the S3 bucket"
+
+Resources:
+
+  svcCrawlerLambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "StartGlueCrawlerLambdaPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "glue:StartCrawler"
+                  - "glue:GetCrawler"
+                Resource: !Sub "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:crawler/${ParamCrawlerS3BucketName}-crawler"
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+
+  CrawlerTriggerLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !Sub "${ParamCrawlerS3BucketName}-crawler-trigger"
+      Runtime: "python3.9"
+      Handler: "index.lambda_handler"
+      Role: !GetAtt svcCrawlerLambdaExecutionRole.Arn
+      Timeout: 900
+      Environment:
+        Variables:
+          CrawlerName: !Sub "${ParamCrawlerS3BucketName}-crawler"
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import os
+          import logging
+
+          logger = logging.getLogger()
+          logger.setLevel(logging.INFO)
+
+          def lambda_handler(event, context):
+              client = boto3.client('glue')
+              crawler_name = os.environ.get("CrawlerName")
+
+              if not crawler_name:
+                  logger.error("Crawler name is missing")
+                  return {"statusCode": 400, "body": json.dumps({"error": "Crawler name is missing"})}
+
+              try:
+                  # Check if the crawler is already running
+                  crawler_info = client.get_crawler(Name=crawler_name)
+                  crawler_state = crawler_info["Crawler"]["State"]
+
+                  if crawler_state == "RUNNING":
+                      logger.info(f"Crawler {crawler_name} is already running")
+                      return {"statusCode": 200, "body": json.dumps({"message": f"Crawler {crawler_name} is already running"})}
+
+                  # Start the crawler if it's not running
+                  client.start_crawler(Name=crawler_name)
+                  return {"statusCode": 200, "body": json.dumps({"message": f"Crawler {crawler_name} started"})}
+
+              except Exception as e:
+                  logger.error(f"Error starting the crawler {crawler_name}: {str(e)}", exc_info=True)
+                  return {
+                      "statusCode": 500,
+                      "body": json.dumps({"error": str(e)})
+                  }
+
+Outputs:
+  CrawlerTriggerLambdaArn:
+    Description: "ARN of the Lambda function that triggers the Glue Crawler"
+    Value: !GetAtt CrawlerTriggerLambda.Arn
+    Export:
+      Name: CrawlerTriggerLambdaArn
