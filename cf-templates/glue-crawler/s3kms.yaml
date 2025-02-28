@@ -146,7 +146,6 @@ Resources:
               Service: cloudtrail.amazonaws.com
             Action:
               - s3:GetBucketAcl
-              - s3:PutObjectAcl
               - s3:ListBucket
             Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}"
           # Allow CloudTrail to write logs
@@ -154,6 +153,7 @@ Resources:
             Principal:
               Service: cloudtrail.amazonaws.com
             Action:
+              - s3:PutObjectAcl
               - s3:PutObject
             Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}/*"
             Condition:
