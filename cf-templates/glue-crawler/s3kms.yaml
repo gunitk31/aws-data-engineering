@@ -155,6 +155,9 @@ Resources:
             Action:
               - s3:PutObject
             Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}/AWSLogs/${AWS::AccountId}/*"
+            Condition:
+              StringEquals:
+                "s3:x-amz-acl": "bucket-owner-full-control"
 
   CrawlerS3BucketTrail:
     Type: AWS::CloudTrail::Trail
