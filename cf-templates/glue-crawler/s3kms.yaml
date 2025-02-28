@@ -28,12 +28,12 @@ Resources:
             Principal:
               AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
             Action: "kms:*"
-            Resource: !Sub "arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerS3KMSKey"
+            Resource: "*"
           - Effect: Allow
             Principal:
               AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:user/general-admin"
             Action: "kms:*"
-            Resource: !Sub "arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerS3KMSKey"
+            Resource: "*"
           # Allow S3 bucket to use the KMS key for encryption/decryption
           - Effect: Allow
             Principal:
@@ -87,12 +87,12 @@ Resources:
             Principal:
               AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
             Action: "kms:*"
-            Resource: !Sub "arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerTrailS3KMSKey"
+            Resource: "*"
           - Effect: Allow
             Principal:
               AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:user/general-admin"
             Action: "kms:*"
-            Resource: !Sub "arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerTrailS3KMSKey"
+            Resource: "*"
           # Allow CloudTrail to use the KMS key for encryption/decryption
           - Effect: Allow
             Principal:
