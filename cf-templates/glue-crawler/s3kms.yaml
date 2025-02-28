@@ -28,12 +28,12 @@ Resources:
             Principal:
               AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
             Action: "kms:*"
-            Resource: "*"
+            Resource: !Sub "arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerS3KMSKey"
           - Effect: Allow
             Principal:
               AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:user/general-admin"
             Action: "kms:*"
-            Resource: "*"
+            Resource: !Sub "arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerS3KMSKey"
           # Allow S3 bucket to use the KMS key for encryption/decryption
           - Effect: Allow
             Principal:
@@ -76,6 +76,7 @@ Resources:
       KeySpec: SYMMETRIC_DEFAULT
       MultiRegion: false
       BypassPolicyLockoutSafetyCheck: false
+      EnableKeyRotation: true
       RotationPeriodInDays: 90
       KeyPolicy:
         Version: "2012-10-17"
@@ -86,12 +87,12 @@ Resources:
             Principal:
               AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
             Action: "kms:*"
-            Resource: "*"
+            Resource: !Sub "arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerTrailS3KMSKey"
           - Effect: Allow
             Principal:
               AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:user/general-admin"
             Action: "kms:*"
-            Resource: "*"
+            Resource: !Sub "arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerTrailS3KMSKey"
           # Allow CloudTrail to use the KMS key for encryption/decryption
           - Effect: Allow
             Principal:
@@ -154,7 +155,7 @@ Resources:
               Service: cloudtrail.amazonaws.com
             Action:
               - s3:PutObject
-            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}/AWSLogs/${AWS::AccountId}/*"
+            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}/*"
             Condition:
               StringEquals:
                 "s3:x-amz-acl": "bucket-owner-full-control"
