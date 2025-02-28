@@ -25,13 +25,8 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:root
-            Action: kms:*
-            Resource: '*'
-
-          - Effect: Allow
-            Principal:
-              AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:user/general-admin
+              - AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:root
+              - AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:user/general-admin
             Action: kms:*
             Resource: '*'
 
@@ -140,17 +135,30 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Effect: Allow
+          - Sid: AWSCloudTrailAclCheck
+            Effect: Allow
             Principal:
               Service: cloudtrail.amazonaws.com
-            Action:
-              - s3:*
-            Resource: 
-              - !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::AccountId}"
-              - !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::AccountId}/*"
+            Action: 
+              - s3:GetBucketAcl
+              - s3:ListBucket
+              - s3:GetBucketPolicy
+            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::AccountId}"
+            Condition:
+              StringEquals:
+                aws:SourceArn: !Sub arn:${AWS::Partition}:cloudtrail:${AWS::Region}:${AWS::AccountId}:trail/${AWS::StackName}-CrawlerS3BucketTrail
+
+          - Sid: AWSCloudTrailWrite
+            Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+            Action: s3:PutObject
+            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::AccountId}/*"
             Condition:
               StringEquals:
                 s3:x-amz-acl: bucket-owner-full-control
+              ArnEquals:
+                aws:SourceArn: !Sub arn:${AWS::Partition}:cloudtrail:${AWS::Region}:${AWS::AccountId}:trail/${AWS::StackName}-CrawlerS3BucketTrail
 
   
   CrawlerS3BucketTrail:
