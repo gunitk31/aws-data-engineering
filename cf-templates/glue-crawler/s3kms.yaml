@@ -144,15 +144,10 @@ Resources:
             Principal:
               Service: cloudtrail.amazonaws.com
             Action:
-              - s3:GetBucketAcl
-            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::AccountId}"
-
-          - Effect: Allow
-            Principal:
-              Service: cloudtrail.amazonaws.com
-            Action:
-              - s3:PutObject
-            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::AccountId}/*"
+              - s3:*
+            Resource: 
+              - !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::AccountId}"
+              - !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::AccountId}/*"
             Condition:
               StringEquals:
                 s3:x-amz-acl: bucket-owner-full-control
