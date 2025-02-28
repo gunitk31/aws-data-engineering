@@ -133,7 +133,7 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       
-  CrawlerTrailS3BucketPolicy:
+  BucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
     Properties:
       Bucket: !Ref CrawlerTrailS3Bucket
