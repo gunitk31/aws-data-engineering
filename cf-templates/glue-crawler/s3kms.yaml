@@ -132,6 +132,46 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       
+  CrawlerTrailS3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref CrawlerTrailS3Bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          # Allow root user full control
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}"
+              - !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}/*"
+          # Allow general admin user full control
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:user/general-admin"
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}"
+              - !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}/*"
+          # Allow CloudTrail to verify bucket permissions
+          - Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+            Action:
+              - s3:GetBucketAcl
+              - s3:PutObjectAcl
+              - s3:ListBucket
+            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}"
+          # Allow CloudTrail to write logs
+          - Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+            Action:
+              - s3:PutObject
+            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}/AWSLogs/${AWS::AccountId}/*"
+
   CrawlerS3BucketTrail:
     Type: AWS::CloudTrail::Trail
     Properties:
