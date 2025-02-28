@@ -3,13 +3,13 @@ AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   ParamCrawlerS3BucketName:
     Type: String
-    Description: 'Name of the S3 Bucket'
-    AllowedPattern: '^[a-z0-9-]{5,40}$'
+    Description: Name of the S3 Bucket
+    AllowedPattern: ^[a-z0-9-]{5,40}$
 
 Resources:
 
   CrawlerS3KMSKey:
-    Type: 'AWS::KMS::Key'
+    Type: AWS::KMS::Key
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
@@ -20,41 +20,39 @@ Resources:
       BypassPolicyLockoutSafetyCheck: false
       RotationPeriodInDays: 90
       KeyPolicy:
-        Version: "2012-10-17"
-        Id: "CloudTrailS3KMSPolicy"
+        Version: '2012-10-17'
+        Id: CloudTrailS3KMSPolicy
         Statement:
-          #Allow AWS Account Root User Full Control (Fixes Your Issue)
           - Effect: Allow
             Principal:
-              AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
-            Action: "kms:*"
-            Resource: "*"
+              AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: '*'
           - Effect: Allow
             Principal:
-              AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:user/general-admin"
-            Action: "kms:*"
-            Resource: "*"
-          # Allow S3 bucket to use the KMS key for encryption/decryption
+              AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:user/general-admin
+            Action: kms:*
+            Resource: '*'
           - Effect: Allow
             Principal:
               Service: s3.amazonaws.com
             Action:
-              - "kms:Encrypt"
-              - "kms:Decrypt"
-              - "kms:ReEncrypt*"
-              - "kms:GenerateDataKey*"
-              - "kms:DescribeKey"
-            Resource: !Sub "arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerS3KMSKey"
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
+            Resource: !Sub arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerS3KMSKey
             Condition:
               StringEquals:
-                "aws:SourceArn": !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}"
-
+                aws:SourceArn: !Sub arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}
+  
   CrawlerS3Bucket:
-    Type: 'AWS::S3::Bucket'
+    Type: AWS::S3::Bucket
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
-      BucketName: !Sub '${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}'
+      BucketName: !Sub ${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -63,11 +61,11 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       NotificationConfiguration:
-        EventBridgeConfiguration:  # <-- Enables EventBridge notifications
+        EventBridgeConfiguration:
           EventBridgeEnabled: true
-
+  
   CrawlerTrailS3KMSKey:
-    Type: 'AWS::KMS::Key'
+    Type: AWS::KMS::Key
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
@@ -79,52 +77,49 @@ Resources:
       EnableKeyRotation: true
       RotationPeriodInDays: 90
       KeyPolicy:
-        Version: "2012-10-17"
-        Id: "CloudTrailS3KMSPolicy"
+        Version: '2012-10-17'
+        Id: CloudTrailS3KMSPolicy
         Statement:
-          #Allow AWS Account Root User Full Control (Fixes Your Issue)
           - Effect: Allow
             Principal:
-              AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
-            Action: "kms:*"
-            Resource: "*"
+              AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: '*'
           - Effect: Allow
             Principal:
-              AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:user/general-admin"
-            Action: "kms:*"
-            Resource: "*"
-          # Allow CloudTrail to use the KMS key for encryption/decryption
+              AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:user/general-admin
+            Action: kms:*
+            Resource: '*'
           - Effect: Allow
             Principal:
               Service: cloudtrail.amazonaws.com
             Action:
-              - "kms:Encrypt"
-              - "kms:Decrypt"
-              - "kms:ReEncrypt*"
-              - "kms:GenerateDataKey*"
-              - "kms:DescribeKey"
-            Resource: !Sub "arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerTrailS3KMSKey"
-          # Allow S3 bucket to use the KMS key for encryption/decryption
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
+            Resource: !Sub arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerTrailS3KMSKey
           - Effect: Allow
             Principal:
               Service: s3.amazonaws.com
             Action:
-              - "kms:Encrypt"
-              - "kms:Decrypt"
-              - "kms:ReEncrypt*"
-              - "kms:GenerateDataKey*"
-              - "kms:DescribeKey"
-            Resource: !Sub "arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerTrailS3KMSKey"
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
+            Resource: !Sub arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerTrailS3KMSKey
             Condition:
               StringEquals:
-                "aws:SourceArn": !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}"
-
+                aws:SourceArn: !Sub arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}
+  
   CrawlerTrailS3Bucket:
-    Type: 'AWS::S3::Bucket'
+    Type: AWS::S3::Bucket
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
-      BucketName: !Sub '${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}'
+      BucketName: !Sub ${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -132,33 +127,33 @@ Resources:
               KMSMasterKeyID: !Ref CrawlerTrailS3KMSKey
       VersioningConfiguration:
         Status: Enabled
-      
+  
   CrawlerTrailS3BucketPolicy:
-    Type: 'AWS::S3::BucketPolicy'
+    Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: !Ref CrawlerTrailS3Bucket
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          # Allow CloudTrail to verify bucket permissions
-          - Effect: Allow
-            Principal:
+          - Principal:
               Service: cloudtrail.amazonaws.com
+            Effect: Allow
             Action:
               - s3:GetBucketAcl
               - s3:ListBucket
-            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}"
-          # Allow CloudTrail to write logs
-          - Effect: Allow
-            Principal:
+            Resource:
+              - !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}"
+          - Principal:
               Service: cloudtrail.amazonaws.com
+            Effect: Allow
             Action:
               - s3:PutObject
-            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}/*"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}/*"
             Condition:
               StringEquals:
-                "s3:x-amz-acl": "bucket-owner-full-control"
-
+                s3:x-amz-acl: '"bucket-owner-full-control"'
+  
   CrawlerS3BucketTrail:
     Type: AWS::CloudTrail::Trail
     Properties:
@@ -170,27 +165,27 @@ Resources:
       EventSelectors:
         - ReadWriteType: WriteOnly
           DataResources:
-               - Type: AWS::S3::Object
-                 Values:
-                 - !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}/*"
-      KMSKeyId: !GetAtt CrawlerTrailS3KMSKey.Arn  
+            - Type: AWS::S3::Object
+              Values:
+                - !Sub arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}/*
+      KMSKeyId: !GetAtt CrawlerTrailS3KMSKey.Arn
 
 Outputs:
-
+  
   CrawlerS3BucketName:
-    Description: 'Name of the S3 Bucket'
+    Description: Name of the S3 Bucket
     Value: !Ref CrawlerS3Bucket
     Export:
       Name: CrawlerS3BucketName
-
+  
   CrawlerS3KMSKeyArn:
-    Description: 'KMS Key for the Crawler S3 Bucket'
+    Description: KMS Key for the Crawler S3 Bucket
     Value: !GetAtt CrawlerS3KMSKey.Arn
     Export:
       Name: CrawlerS3KMSKeyArn
-
+  
   CrawlerS3BucketTrailArn:
-    Description: 'CloudTrail ARN for the Crawler S3 Bucket'
+    Description: CloudTrail ARN for the Crawler S3 Bucket
     Value: !GetAtt CrawlerS3BucketTrail.Arn
     Export:
       Name: CrawlerS3BucketTrailArn
