@@ -117,14 +117,14 @@ Resources:
             Resource: !Sub arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/${AWS::StackName}-CrawlerTrailS3KMSKey
             Condition:
               StringEquals:
-                aws:SourceArn: !Sub arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}
+                aws:SourceArn: !Sub arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::AccountId}
   
   CrawlerTrailS3Bucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
-      BucketName: !Sub ${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}
+      BucketName: !Sub ${ParamCrawlerS3BucketName}-trail-${AWS::AccountId}
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -145,14 +145,14 @@ Resources:
               Service: cloudtrail.amazonaws.com
             Action:
               - s3:GetBucketAcl
-            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}"
+            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::AccountId}"
 
           - Effect: Allow
             Principal:
               Service: cloudtrail.amazonaws.com
             Action:
               - s3:PutObject
-            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}/*"
+            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::AccountId}/*"
             Condition:
               StringEquals:
                 s3:x-amz-acl: bucket-owner-full-control
