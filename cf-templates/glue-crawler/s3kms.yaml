@@ -133,7 +133,7 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       
-  BucketPolicy:
+  CrawlerTrailS3BucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
     Properties:
       Bucket: !Ref CrawlerTrailS3Bucket
@@ -153,7 +153,6 @@ Resources:
             Principal:
               Service: cloudtrail.amazonaws.com
             Action:
-              - s3:PutObjectAcl
               - s3:PutObject
             Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}/*"
             Condition:
