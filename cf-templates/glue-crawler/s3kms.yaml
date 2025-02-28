@@ -25,8 +25,13 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              - AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:root
-              - AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:user/general-admin
+              AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: '*'
+
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:user/general-admin
             Action: kms:*
             Resource: '*'
 
