@@ -2,30 +2,12 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: "Master stack that ensures correct order of S3 and EC2"
 
 Parameters:
-  ParamCrawlerS3BucketName:
+  DataStoreName:
     Type: String
     Description: 'Name of the S3 Bucket'
     AllowedPattern: '^[a-z0-9-]{5,40}$'
 
 Resources:
-  S3BucketStack:
-    Type: AWS::CloudFormation::Stack
-    DeletionPolicy: Delete
-    UpdateReplacePolicy: Delete
-    Properties:
-      TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/s3kms.yaml"
-      Parameters:
-        ParamCrawlerS3BucketName: !Ref ParamCrawlerS3BucketName  # Pass BucketName parameter to the nested stack
-
-  GlueCrawlerStack:
-    Type: AWS::CloudFormation::Stack
-    DeletionPolicy: Delete
-    UpdateReplacePolicy: Delete
-    Properties:
-      TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/gluecrawler.yaml"
-      Parameters:
-        ParamCrawlerS3BucketName: !GetAtt S3BucketStack.Outputs.CrawlerS3BucketName
-        ParamCrawlerS3KMSKeyArn: !GetAtt S3BucketStack.Outputs.CrawlerS3KMSKeyArn
 
   LambdaStack:
     Type: AWS::CloudFormation::Stack
@@ -34,15 +16,35 @@ Resources:
     Properties:
       TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/lambda.yaml"
       Parameters:
-        ParamCrawlerS3BucketName: !GetAtt S3BucketStack.Outputs.CrawlerS3BucketName
-    DependsOn: GlueCrawlerStack  # Ensure that the Glue Crawler stack is created before the Lambda stack
-
-  EventBridgeStack:
+        ParamCrawlerS3BucketName: !Ref DataStoreName
+#    DependsOn: GlueCrawlerStack  # Ensure that the Glue Crawler stack is created before the Lambda stack
+    
+  S3BucketStack:
     Type: AWS::CloudFormation::Stack
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
-      TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/eventbridge.yaml"
+      TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/s3kms.yaml"
       Parameters:
-        ParamCrawlerS3BucketName: !GetAtt S3BucketStack.Outputs.CrawlerS3BucketName 
-        ParamCrawlerTriggerLambdaArn: !GetAtt LambdaStack.Outputs.CrawlerTriggerLambdaArn 
+        ParamCrawlerS3BucketName: !Ref DataStoreName  # Pass BucketName parameter to the nested stack
+        ParamCrawlerTriggerLambdaArn: !GetAtt LambdaStack.Outputs.CrawlerTriggerLambdaArn  # Pass LambdaArn parameter to the nested stack
+
+  #GlueCrawlerStack:
+  #  Type: AWS::CloudFormation::Stack
+  #  DeletionPolicy: Delete
+  #  UpdateReplacePolicy: Delete
+  #  Properties:
+  #    TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/gluecrawler.yaml"
+  #    Parameters:
+  #      ParamCrawlerS3BucketName: !GetAtt S3BucketStack.Outputs.CrawlerS3BucketName
+  #      ParamCrawlerS3KMSKeyArn: !GetAtt S3BucketStack.Outputs.CrawlerS3KMSKeyArn
+
+  #EventBridgeStack:
+  #  Type: AWS::CloudFormation::Stack
+  #  DeletionPolicy: Delete
+  #  UpdateReplacePolicy: Delete
+  #  Properties:
+  #    TemplateURL: "https://cf-templates-795524854110-ap-south-1.s3.amazonaws.com/glue-crawler/eventbridge.yaml"
+  #    Parameters:
+  #      ParamCrawlerS3BucketName: !GetAtt S3BucketStack.Outputs.CrawlerS3BucketName 
+  #      ParamCrawlerTriggerLambdaArn: !GetAtt LambdaStack.Outputs.CrawlerTriggerLambdaArn 

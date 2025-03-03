@@ -6,6 +6,10 @@ Parameters:
     Description: Name of the S3 Bucket
     AllowedPattern: ^[a-z0-9-]{5,40}$
 
+  ParamCrawlerTriggerLambdaArn:
+    Type: String
+    Description: ARN of the Lambda that is invoked from S3 events
+
 Resources:
 
   CrawlerS3KMSKey:
@@ -63,8 +67,9 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       NotificationConfiguration:
-        EventBridgeConfiguration:
-          EventBridgeEnabled: true
+        LambdaConfigurations:
+             - Event: S3:ObjectCreated:*
+               Function: !Ref ParamCrawlerTriggerLambdaArn
   
   CrawlerTrailS3KMSKey:
     Type: AWS::KMS::Key
@@ -132,46 +137,6 @@ Resources:
               KMSMasterKeyID: !Ref CrawlerTrailS3KMSKey
       VersioningConfiguration:
         Status: Enabled
-  
-  CrawlerTrailS3BucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref CrawlerTrailS3Bucket
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: cloudtrail.amazonaws.com
-            Action:
-              - s3:GetBucketAcl
-            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}"
-
-          - Effect: Allow
-            Principal:
-              Service: cloudtrail.amazonaws.com
-            Action:
-              - s3:PutObject
-            Resource: !Sub "arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-trail-${AWS::Region}-${AWS::AccountId}/*"
-            Condition:
-              StringEquals:
-                s3:x-amz-acl: bucket-owner-full-control
-
-  CrawlerS3BucketTrail:
-    Type: AWS::CloudTrail::Trail
-    Properties:
-      S3BucketName: !Ref CrawlerTrailS3Bucket
-      IsMultiRegionTrail: false
-      IsLogging: true
-      IncludeGlobalServiceEvents: true
-      EnableLogFileValidation: true
-      EventSelectors:
-        - ReadWriteType: WriteOnly
-          DataResources:
-            - Type: AWS::S3::Object
-              Values:
-                - !Sub arn:${AWS::Partition}:s3:::${ParamCrawlerS3BucketName}-${AWS::Region}-${AWS::AccountId}/*
-      KMSKeyId: !GetAtt CrawlerTrailS3KMSKey.Arn
 
 Outputs:
   
@@ -186,9 +151,3 @@ Outputs:
     Value: !GetAtt CrawlerS3KMSKey.Arn
     Export:
       Name: CrawlerS3KMSKeyArn
-  
-  CrawlerS3BucketTrailArn:
-    Description: CloudTrail ARN for the Crawler S3 Bucket
-    Value: !GetAtt CrawlerS3BucketTrail.Arn
-    Export:
-      Name: CrawlerS3BucketTrailArn
